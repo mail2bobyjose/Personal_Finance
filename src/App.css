@@ -1,0 +1,119 @@
+/* PortfolioTracker.css */
+
+body {
+  font-family: 'Arial', sans-serif;
+  background-color: #f4f7fc;
+  margin: 0;
+  padding: 0;
+  justify-content: center;
+}
+
+.portfolio-container {
+  max-width: auto;
+  margin left:  px ;
+  padding: 20px;
+  background-color: grey;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  justify = center;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 2.5rem;
+}
+
+.header p {
+  font-size: 1rem;
+  color: black;
+}
+
+.portfolio-summary {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 10px;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.portfolio-summary .portfolio-value,
+.portfolio-summary .profit-loss {
+  width: 48%;
+}
+
+.portfolio-summary h2 {
+  margin: 0;
+  font-size: 1.2rem;
+  color: #333;
+}
+
+.portfolio-summary p {
+  font-size: 1.5rem;
+  margin-top: 5px;
+}
+
+.positive {
+  color: green;
+}
+
+.negative {
+  color: red;
+}
+
+.stock-holdings {
+  margin-top: 30px;
+}
+
+.stock-holdings h2 {
+  font-size: 1.5rem;
+  color: #333;
+  margin-bottom: 15px;
+}
+
+.stock-holdings table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.stock-holdings th,
+.stock-holdings td {
+  text-align: left;
+  padding: 10px;
+}
+
+.stock-holdings th {
+  background-color: #f1f1f1;
+}
+
+.stock-holdings td {
+  background-color: #fff;
+  border-bottom: 1px solid #f1f1f1;
+}
+
+.footer {
+  margin-top: 40px;
+  padding: 10px;
+  background-color: #f1f1f1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: 10px;
+}
+
+.footer p {
+  margin: 0;
+}
+
+.secure {
+  font-size: 0.875rem;
+  color: #777;
+  font-weight: bold;
+}
