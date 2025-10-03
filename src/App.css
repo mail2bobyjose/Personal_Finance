@@ -1,3 +1,44 @@
+.calendar-container {
+  background: #ffffff;
+  padding: 8px 16px;
+}
+
+/* Ensure events in day view size to content instead of full width */
+.rbc-day-slot .rbc-event.compact-event,
+.rbc-day-slot .rbc-event-content.compact-event {
+  width: 100px !important;
+  right: auto !important;
+  height: 100px !important;
+}
+
+/* Make each hour slot (and gutter ruler) 100px tall to match event height */
+.rbc-time-content .rbc-timeslot-group,
+.rbc-time-gutter .rbc-timeslot-group {
+  height: 100px !important;
+  min-height: 100px !important;
+}
+
+/* Day column rows */
+.rbc-day-slot .rbc-timeslot-group {
+  height: 100px !important;
+  min-height: 100px !important;
+}
+
+/* Strengthen rule on all time columns within time-content */
+.rbc-time-content > .rbc-time-column > .rbc-timeslot-group {
+  height: 100px !important;
+  min-height: 100px !important;
+}
+
+/* Optional: align the time gutter label vertically by matching line-height */
+.rbc-time-gutter .rbc-timeslot-group .rbc-time-slot {
+  height: 100px !important;
+  line-height: 100px !important;
+}
+
+.rbc-day-slot .rbc-event.compact-event .rbc-event-content {
+  white-space: nowrap;
+}
 /* PortfolioTracker.css */
 
 body {
@@ -8,112 +49,60 @@ body {
   justify-content: center;
 }
 
-.portfolio-container {
-  max-width: auto;
-  margin left:  px ;
-  padding: 20px;
-  background-color: grey;
-  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-  border-radius: 10px;
-  justify = center;
+.app-container {
+  width: calc(100% - 60px);
+  max-width: 100%;
+  margin: 30px;
+  padding: 0;
+  position: relative;
+  top: 0;
+  box-sizing: border-box;
 }
 
-.header {
+.app-header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-}
-
-.header h1 {
-  margin: 0;
-  font-size: 2.5rem;
-}
-
-.header p {
-  font-size: 1rem;
-  color: black;
-}
-
-.portfolio-summary {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 20px;
-  padding: 20px;
-  background-color: #f9f9f9;
-  border-radius: 10px;
-  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.portfolio-summary .portfolio-value,
-.portfolio-summary .profit-loss {
-  width: 48%;
-}
-
-.portfolio-summary h2 {
-  margin: 0;
-  font-size: 1.2rem;
-  color: #333;
-}
-
-.portfolio-summary p {
-  font-size: 1.5rem;
-  margin-top: 5px;
-}
-
-.positive {
-  color: green;
-}
-
-.negative {
-  color: red;
-}
-
-.stock-holdings {
-  margin-top: 30px;
-}
-
-.stock-holdings h2 {
-  font-size: 1.5rem;
-  color: #333;
-  margin-bottom: 15px;
-}
-
-.stock-holdings table {
+  height: 64px;
+  padding: 0 16px;
+  background: #ffffff;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.06);
   width: 100%;
-  border-collapse: collapse;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
 }
 
-.stock-holdings th,
-.stock-holdings td {
-  text-align: left;
-  padding: 10px;
+.app-logo {
+  height: 48px; /* standard-ish height within header */
+  width: auto;
 }
 
-.stock-holdings th {
-  background-color: #f1f1f1;
-}
-
-.stock-holdings td {
-  background-color: #fff;
-  border-bottom: 1px solid #f1f1f1;
-}
-
-.footer {
-  margin-top: 40px;
-  padding: 10px;
-  background-color: #f1f1f1;
+.app-menu {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-radius: 10px;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 8px 16px;
+  background: skyblue;
+  border-bottom: 1px solid #e5e7eb;
+  width: 100%;
+  position: sticky;
+  top: 64px; /* sticks below 64px header */
+  z-index: 999;
 }
 
-.footer p {
-  margin: 0;
+.menu-item {
+  appearance: none;
+  border: 1px solid #93c5fd;
+  background: #60a5fa; /* blue-400 */
+  color: #ffffff;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
 }
 
-.secure {
-  font-size: 0.875rem;
-  color: #777;
-  font-weight: bold;
+.menu-item:hover {
+  background: #3b82f6; /* blue-500 */
+  border-color: #169e21;
 }
+
+
