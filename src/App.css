@@ -1,122 +1,8 @@
-.calendar-container {
-  background: #ffffff;
-  padding: 8px 8px;
-}
-
-/* Ensure events in day view size to content instead of full width */
-.rbc-day-slot .rbc-event.compact-event,
-.rbc-day-slot .rbc-event-content.compact-event {
-  width: auto !important;
-  right: auto !important;
-  height: 100px !important;
-  padding: 10px 10px;
-}
-
-/* Base size for hour groups; empty slots will be halved */
-.rbc-time-content .rbc-timeslot-group,
-.rbc-time-gutter .rbc-timeslot-group {
-  height: 100px !important;
-  min-height: 100px !important;
-}
-
-/* Day column rows */
-.rbc-day-slot .rbc-timeslot-group {
-  height: 100px !important;
-  min-height: 100px !important;
-}
-
-/* Strengthen rule on all time columns within time-content */
-.rbc-time-content > .rbc-time-column > .rbc-timeslot-group {
-  height: 100px !important;
-  min-height: 100px !important;
-}
-
-/* Ensure each individual slot matches group size; empty slots get 50px */
-.rbc-time-content .rbc-time-slot,
-.rbc-day-slot .rbc-time-slot {
-  height: 100px !important;
-  border-top: 0 !important;
-  padding: 0 !important;
-}
-
-/* Halve height when no events in that hour */
-.empty-slot .rbc-time-slot,
-.empty-slot {
-  height: 50px !important;
-  min-height: 50px !important;
-}
-
-/* Remove padding that can offset alignment between gutter and content */
-.rbc-time-content .rbc-time-column,
-.rbc-time-gutter .rbc-time-column {
-  padding: 0 !important;
-}
-
-/* Sync borders and box sizing to avoid 1px drift between gutter and grid */
-.rbc-time-gutter .rbc-timeslot-group,
-.rbc-time-content .rbc-timeslot-group {
-  height: 100px !important;
-  min-height: 100px !important;
-  border-top: 0 !important;
-  box-sizing: border-box;
-}
-
-.rbc-time-gutter,
-.rbc-time-content,
-.rbc-time-column,
-.rbc-day-slot {
-  box-sizing: border-box;
-  margin: 0 !important;
-}
-
-/* Remove browser-specific transforms; rely on exact heights and background grid */
-
-/* Ensure the very first row does not double up a border */
-.rbc-time-gutter .rbc-timeslot-group:first-child,
-.rbc-time-content .rbc-timeslot-group:first-child {
-  border-top: 0 !important;
-}
-
-/* Make gutter hour labels match 100px rows exactly */
-.rbc-time-gutter .rbc-label {
-  height: 100px !important;
-  line-height: normal !important;
-  padding: 0 !important;
-  display: flex;
-  align-items: flex-start;
-}
-
-/* Optional: align the time gutter label vertically by matching line-height */
-.rbc-time-gutter .rbc-timeslot-group .rbc-time-slot {
-  height: 100px !important;
-  line-height: normal !important;
-}
-
-/* Synchronized background grid lines to avoid cumulative misalignment */
-.rbc-time-content {
-  background-image: repeating-linear-gradient(to bottom, #e5e7eb 0, #e5e7eb 1px, transparent 1px, transparent 100px);
-  background-position: top left;
-  background-repeat: repeat;
-  background-size: 100% 100px;
-  background-attachment: local;
-}
-
-/* Remove background grid from gutter to avoid double lines above labels */
-.rbc-time-gutter {
-  background: transparent !important;
-}
-
-.rbc-day-slot .rbc-event.compact-event .rbc-event-content {
-  white-space: nowrap;
-}
-/* PortfolioTracker.css */
-
 body {
   font-family: 'Arial', sans-serif;
   background-color: #f4f7fc;
   margin: 0;
   padding: 0;
-  justify-content: center;
 }
 
 .app-container {
@@ -135,7 +21,7 @@ body {
   height: 64px;
   padding: 0 16px;
   background: #ffffff;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
   width: 100%;
   position: sticky;
   top: 0;
@@ -143,7 +29,7 @@ body {
 }
 
 .app-logo {
-  height: 48px; /* standard-ish height within header */
+  height: 48px;
   width: auto;
 }
 
@@ -152,27 +38,64 @@ body {
   justify-content: flex-end;
   gap: 12px;
   padding: 8px 16px;
-   background: skyblue;
+  background: skyblue;
   border-bottom: 1px solid #e5e7eb;
   width: 100%;
   position: sticky;
-  top: 64px; /* sticks below 64px header */
+  top: 64px;
   z-index: 999;
 }
 
 .menu-item {
   appearance: none;
   border: 1px solid #93c5fd;
-  background: #60a5fa; /* blue-400 */
+  background: #60a5fa;
   color: #ffffff;
   padding: 8px 12px;
   border-radius: 8px;
   cursor: pointer;
+  white-space: nowrap;
 }
 
 .menu-item:hover {
-  background: #3b82f6; /* blue-500 */
+  background: #3b82f6;
   border-color: #169e21;
 }
 
+/* Dropdown logic */
+.dropdown-wrapper {
+  position: relative;
+}
 
+.dropdown-wrapper:hover .submenu {
+  display: block;
+}
+
+.submenu {
+  display: none;
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background-color: white;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  min-width: 180px;
+  padding: 4px 0;
+}
+
+.submenu-item {
+  width: 100%;
+  padding: 8px 16px;
+  text-align: left;
+  border: none;
+  background: none;
+  color: #333;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.submenu-item:hover {
+  background-color: #f0f0f0;
+}
