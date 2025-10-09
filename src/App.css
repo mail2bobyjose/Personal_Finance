@@ -1,17 +1,18 @@
 .calendar-container {
   background: #ffffff;
-  padding: 8px 16px;
+  padding: 8px 8px;
 }
 
 /* Ensure events in day view size to content instead of full width */
 .rbc-day-slot .rbc-event.compact-event,
 .rbc-day-slot .rbc-event-content.compact-event {
-  width: 100px !important;
+  width: auto !important;
   right: auto !important;
   height: 100px !important;
+  padding: 10px 10px;
 }
 
-/* Make each hour slot (and gutter ruler) 100px tall to match event height */
+/* Base size for hour groups; empty slots will be halved */
 .rbc-time-content .rbc-timeslot-group,
 .rbc-time-gutter .rbc-timeslot-group {
   height: 100px !important;
