@@ -36,7 +36,7 @@ const AddTeacherForm = () => {
   };
 
   return (
-    <div style={{ padding: 16, display: 'flex', justifyContent: 'center' }}>
+    <div style={{ padding: 16, display: 'flex', justifyContent: 'center', border: '2px solid red' }}>
       <div style={{ width: '100%', maxWidth: 480 }}>
         <h2 style={{ textAlign: 'center', marginBottom: 12 }}>Add Teacher</h2>
         <form onSubmit={handleSubmit} style={{ display: 'grid', gap: 12, width: '100%' }}>
@@ -49,9 +49,9 @@ const AddTeacherForm = () => {
             <input name="lastName" type="text" value={form.lastName} onChange={handleChange} required />
           </label>
           <fieldset style={{ border: '1px solid #e5e7eb', borderRadius: 8, padding: 12 }}>
-            <legend>Subjects</legend>
+            <legend style={{display: 'flex' }} >Subjects</legend>
             {['Maths', 'English', 'Science', 'Drawing'].map((subj) => (
-              <label key={subj} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+              <label key={subj} style={{ display: 'inline', alignItems: 'left', paddingRight: '20px', marginBottom: 8 }}>
                 <input
                   type="checkbox"
                   checked={form.subjects.includes(subj)}

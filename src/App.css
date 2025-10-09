@@ -89,7 +89,21 @@
 /* Optional: align the time gutter label vertically by matching line-height */
 .rbc-time-gutter .rbc-timeslot-group .rbc-time-slot {
   height: 100px !important;
-  line-height: 100px !important;
+  line-height: normal !important;
+}
+
+/* Synchronized background grid lines to avoid cumulative misalignment */
+.rbc-time-content {
+  background-image: repeating-linear-gradient(to bottom, #e5e7eb 0, #e5e7eb 1px, transparent 1px, transparent 100px);
+  background-position: top left;
+  background-repeat: repeat;
+  background-size: 100% 100px;
+  background-attachment: local;
+}
+
+/* Remove background grid from gutter to avoid double lines above labels */
+.rbc-time-gutter {
+  background: transparent !important;
 }
 
 .rbc-day-slot .rbc-event.compact-event .rbc-event-content {
@@ -108,8 +122,8 @@ body {
 .app-container {
   width: calc(100% - 60px);
   max-width: 100%;
-  margin: 30px;
-  padding: 0;
+  margin: 5px;
+  padding: 20px;
   position: relative;
   top: 0;
   box-sizing: border-box;
@@ -138,7 +152,7 @@ body {
   justify-content: flex-end;
   gap: 12px;
   padding: 8px 16px;
-  background: skyblue;
+   background: skyblue;
   border-bottom: 1px solid #e5e7eb;
   width: 100%;
   position: sticky;

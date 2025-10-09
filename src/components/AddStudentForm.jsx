@@ -120,12 +120,12 @@ const AddStudentForm = () => {
           <div style={{ display: 'flex', gap: 10 }}>
             <label style={{ flex: 1 }}>
               First Name:
-            <input name="firstName" type="text" value={form.firstName} onChange={handleChange} required />
-          </label>
+              <input name="firstName" type="text" value={form.firstName} onChange={handleChange} required />
+            </label>
             <label style={{ flex: 1 }}>
               Last Name:
-            <input name="lastName" type="text" value={form.lastName} onChange={handleChange} required />
-          </label>
+              <input name="lastName" type="text" value={form.lastName} onChange={handleChange} required />
+            </label>
           </div>
           <label>
             Parent's Name:
