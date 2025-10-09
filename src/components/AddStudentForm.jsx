@@ -8,10 +8,22 @@ const initialForm = {
   parentMobile: '',
   parentEmail: '',
   startDate: '',
+  subjects: [],
 };
+
+const subjectsList = ['Maths', 'English', 'Drawing'];
+const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
 const AddStudentForm = () => {
   const [form, setForm] = useState(initialForm);
+  const [studentId, setStudentId] = useState(null);
+  const [activeTab, setActiveTab] = useState('demo');
+
+  const [demo, setDemo] = useState({ date: '', time: '', teacher: '' });
+  const [regularClasses, setRegularClasses] = useState(
+    daysOfWeek.reduce((acc, day) => ({ ...acc, [day]: '' }), {})
+  );
+  const [suspension, setSuspension] = useState({ startDate: '', endDate: '' });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -20,8 +32,37 @@ const AddStudentForm = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log('Add Student form submitted:', form);
-    alert('Student saved (demo).');
+    try {
+      const payload = {
+        studentFirstName: form.firstName,
+        lastName: form.lastName,
+        parentName: form.parentName,
+        parentEmail: form.parentEmail,
+        parentMobile: form.parentMobile,
+        startDate: form.startDate,
+        subjects: form.subjects,
+      };
+
+      const response = await fetch(
+        'https://hcnfaq912k.execute-api.ap-southeast-2.amazonaws.com/dev/students',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        }
+      );
+
+      const data = await response.json();
+      if (response.ok) {
+        setStudentId(data.studentId);
+        alert(`✅ Student added successfully! ID: ${data.studentId}`);
+      } else {
+        alert('❌ Error: ' + data.message);
+      }
+    } catch (err) {
+      console.error(err);
+      alert('❌ Network or server error');
+    }
     setForm(initialForm);
   };
 
