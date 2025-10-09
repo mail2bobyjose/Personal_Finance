@@ -31,6 +31,61 @@
   min-height: 100px !important;
 }
 
+/* Ensure each individual slot matches group size; empty slots get 50px */
+.rbc-time-content .rbc-time-slot,
+.rbc-day-slot .rbc-time-slot {
+  height: 100px !important;
+  border-top: 0 !important;
+  padding: 0 !important;
+}
+
+/* Halve height when no events in that hour */
+.empty-slot .rbc-time-slot,
+.empty-slot {
+  height: 50px !important;
+  min-height: 50px !important;
+}
+
+/* Remove padding that can offset alignment between gutter and content */
+.rbc-time-content .rbc-time-column,
+.rbc-time-gutter .rbc-time-column {
+  padding: 0 !important;
+}
+
+/* Sync borders and box sizing to avoid 1px drift between gutter and grid */
+.rbc-time-gutter .rbc-timeslot-group,
+.rbc-time-content .rbc-timeslot-group {
+  height: 100px !important;
+  min-height: 100px !important;
+  border-top: 0 !important;
+  box-sizing: border-box;
+}
+
+.rbc-time-gutter,
+.rbc-time-content,
+.rbc-time-column,
+.rbc-day-slot {
+  box-sizing: border-box;
+  margin: 0 !important;
+}
+
+/* Remove browser-specific transforms; rely on exact heights and background grid */
+
+/* Ensure the very first row does not double up a border */
+.rbc-time-gutter .rbc-timeslot-group:first-child,
+.rbc-time-content .rbc-timeslot-group:first-child {
+  border-top: 0 !important;
+}
+
+/* Make gutter hour labels match 100px rows exactly */
+.rbc-time-gutter .rbc-label {
+  height: 100px !important;
+  line-height: normal !important;
+  padding: 0 !important;
+  display: flex;
+  align-items: flex-start;
+}
+
 /* Optional: align the time gutter label vertically by matching line-height */
 .rbc-time-gutter .rbc-timeslot-group .rbc-time-slot {
   height: 100px !important;
