@@ -58,6 +58,7 @@ const AddStudentForm = () => {
         locationState: form.locationState,
       };
 
+      console.log(payload);
       const response = await fetch(
         'https://hcnfaq912k.execute-api.ap-southeast-2.amazonaws.com/dev/students',
         {
@@ -229,6 +230,7 @@ const AddStudentForm = () => {
       display: 'flex',
       marginBottom: -1,
       marginTop: 40,
+      border: '1px solid #ccc',
     },
     tabBtn: (isActive) => ({
       padding: '8px 16px',
@@ -248,14 +250,14 @@ const AddStudentForm = () => {
       borderRadius: '0 0 4px 4px',
     },
     smallBtn: {
-      padding: '4px 8px',
+      //padding: '1px 1px',
       fontSize: 12,
       backgroundColor: '#2ecc71',
       color: '#fff',
       border: 'none',
       borderRadius: 4,
       cursor: 'pointer',
-      float: 'right',
+      float: 'inline-end',
     },
     table: {
       width: '100%',
@@ -278,7 +280,6 @@ const AddStudentForm = () => {
     <div style={style.page}>
       <div style={style.container}>
         <h1 style={style.heading}>Add Student</h1>
-
         <form style={style.form} onSubmit={submitForm}>
           {/* Two fields side by side: Student First and Last Name */}
           <div style={style.halfWidthContainer}>
@@ -388,7 +389,7 @@ const AddStudentForm = () => {
         </form>
 
         {/* Tabs for Demo, Rate, Regular Classes, Suspension */}
-        <div style={style.tabNav}>
+        < div style={style.tabNav}>
           {['demo', 'rate', 'regular', 'suspension'].map((tab) => (
             <button
               key={tab}

@@ -4,6 +4,8 @@ import logo from './assets/samplelogo.png';
 import CalendarView from './components/CalendarView.jsx';
 import AddStudentForm from './components/AddStudentForm.jsx';
 import AddTeacherForm from './components/AddTeacherForm.jsx';
+import UpdateStudentForm from './components/UpdateStudentForm.jsx';
+
 import { BrowserRouter, Routes, Route, useNavigate } from 'react-router-dom';
 
 function MenuBar() {
@@ -58,7 +60,7 @@ function App() {
         <Routes>
           <Route path="/" element={<CalendarView />} />
           <Route path="/addstudent" element={<AddStudentForm />} />
-          <Route path="/updatestudent" element={<div>Update Student Page (Coming Soon)</div>} />
+           <Route path="/updatestudent" element={<UpdateStudentForm />} />
           <Route path="/addteacher" element={<AddTeacherForm />} />
           <Route path="/updateteacher" element={<div>Update Teacher Page (Coming Soon)</div>} />
         </Routes>
