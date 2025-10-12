@@ -111,11 +111,49 @@ const UpdateStudentForm = () => {
   };
 
   
-  // Demo handlers
-  const handleDemoChange = (e) => {
-    const { name, value } = e.target;
-    setDemoForm((prev) => ({ ...prev, [name]: value }));
-  };
+ //Demo handle change and function to set demo end time to 60mins from start time.
+
+const handleDemoChange = (e) => {
+  const { name, value } = e.target;
+
+  setDemoForm((prev) => {
+    const updatedForm = { ...prev, [name]: value };
+
+    // If the startTime is being updated
+    if (name === 'startTime') {
+      const [hours, minutes] = value.split(':').map(Number);
+      const startDate = new Date();
+      startDate.setHours(hours);
+      startDate.setMinutes(minutes + 60); // Add 60 minutes
+
+      const endHours = String(startDate.getHours()).padStart(2, '0');
+      const endMinutes = String(startDate.getMinutes()).padStart(2, '0');
+      const calculatedEndTime = `${endHours}:${endMinutes}`;
+
+      // Only auto-set endTime if it's empty or equal to previous default
+      if (!prev.endTime || prev.endTime === calculateDefaultEndTime(prev.startTime)) {
+        updatedForm.endTime = calculatedEndTime;
+      }
+    }
+
+    return updatedForm;
+  });
+};
+
+// Helper function to calculate default end time from a given start time
+function calculateDefaultEndTime(startTime) {
+  if (!startTime) return '';
+  const [hours, minutes] = startTime.split(':').map(Number);
+  const startDate = new Date();
+  startDate.setHours(hours);
+  startDate.setMinutes(minutes + 60);
+
+  const endHours = String(startDate.getHours()).padStart(2, '0');
+  const endMinutes = String(startDate.getMinutes()).padStart(2, '0');
+  return `${endHours}:${endMinutes}`;
+};
+
+
 
   const addDemo = () => {
     if (!demoForm.date || !demoForm.startTime || !demoForm.endTime || !demoForm.subject || !demoForm.teacher) {

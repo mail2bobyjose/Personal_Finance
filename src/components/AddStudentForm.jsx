@@ -86,6 +86,20 @@ const AddStudentForm = () => {
     const { name, value } = e.target;
     setDemoForm((prev) => ({ ...prev, [name]: value }));
   };
+  
+
+function calculateDefaultEndTime(startTime) {
+  if (!startTime) return '';
+  const [hours, minutes] = startTime.split(':').map(Number);
+  const startDate = new Date();
+  startDate.setHours(hours);
+  startDate.setMinutes(minutes + 60);
+
+  const endHours = String(startDate.getHours()).padStart(2, '0');
+  const endMinutes = String(startDate.getMinutes()).padStart(2, '0');
+  return `${endHours}:${endMinutes}`;
+};
+
 
   const addDemo = () => {
     if (!demoForm.date || !demoForm.startTime || !demoForm.endTime || !demoForm.subject || !demoForm.teacher) {
