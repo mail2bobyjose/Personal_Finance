@@ -123,9 +123,53 @@ const UpdateStudentForm = () => {
       return;
     }
     setDemos((prev) => [...prev, demoForm]);
+    const demopayload = demoForm;
+    console.log (demopayload);
     setDemoForm({ date: '', startTime: '', endTime: '', subject: '', teacher: '' });
     setShowDemoForm(false);
   };
+
+
+  const saveDemo = async () => {
+  console.log('insdiefunction');
+  try {
+    const payload = {
+      studentId: selectedStudent.studentId,
+      studentLastName: selectedStudent.studentLastName,
+      studentFirstName: selectedStudent.studentFirstName,
+      classDate: demoForm.date,
+      classstarttime: demoForm.startTime,
+      classendtime: demoForm.endTime,
+      classsubject: demoForm.subject,
+      classteacher: demoForm.teacher,
+      classstatus: 'proposed',
+      classtype: 'demo'
+    };
+
+    console.log('Submitting payload:', payload);
+
+    const response = await fetch('https://your-api-endpoint.amazonaws.com/demo', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      alert('✅ Demo saved successfully!');
+    } else {
+      alert(`❌ Error: ${data.message}`);
+    }
+
+  } catch (err) {
+    console.error('❌ Network or server error:', err);
+    alert('❌ An error occurred while saving the demo.');
+  }
+};
+
 
   // Rate handlers
   const handleRateChange = (e) => {
@@ -189,16 +233,16 @@ const UpdateStudentForm = () => {
     page: {
       background: '#f4f6f8',
       minHeight: '100vh',
-      padding: '32px 16px',
+      padding: '5px 16px',
     },
     container: {
-      maxWidth: 800,
+      maxWidth: 900,
       margin: '0 auto',
       padding: 24,
       background: '#fff',
       boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
       borderRadius: 8,
-      marginTop: 40,
+      marginTop: 1,
     },
     heading: {
       textAlign: 'center',
@@ -275,6 +319,7 @@ const UpdateStudentForm = () => {
       background: '#fff',
       padding: 16,
       borderRadius: '0 0 4px 4px',
+      minHeight:30,
     },
     smallBtn: {
       //padding: '1px 1px',
@@ -285,7 +330,11 @@ const UpdateStudentForm = () => {
       borderRadius: 4,
       cursor: 'pointer',
       float: 'inline-end',
+      marginBottom:10,
+      minHeight: 20,
     },
+
+ 
     table: {
       width: '100%',
       borderCollapse: 'collapse',
@@ -462,8 +511,8 @@ const UpdateStudentForm = () => {
           {activeTab === 'demo' && (
             <>
               {!showDemoForm && (
-                <button
-                  style={style.smallBtn}
+                <button disabled={!selectedStudent}
+                   style={{...style.smallBtn,...(!selectedStudent && {backgroundColor: '#cccccc',color: '#666666', cursor: 'not-allowed'})}}
                   onClick={() => setShowDemoForm(true)}
                   type="button"
                 >
@@ -540,7 +589,7 @@ const UpdateStudentForm = () => {
                     />
                   </label>
                   <div style={{ flex: '1 1 100%', marginTop: 10 }}>
-                    <button style={style.button} type="submit">
+                    <button style={style.button} onClick={(demoForm) => saveDemo()} type="submit">
                       Save Demo
                     </button>
                     <button
@@ -563,6 +612,8 @@ const UpdateStudentForm = () => {
                       <th style={style.th}>End Time</th>
                       <th style={style.th}>Subject</th>
                       <th style={style.th}>Teacher</th>
+                      <th style={style.th}>Type</th>
+                      <th style={style.th}>Status</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -573,6 +624,8 @@ const UpdateStudentForm = () => {
                         <td style={style.td}>{demo.endTime}</td>
                         <td style={style.td}>{demo.subject}</td>
                         <td style={style.td}>{demo.teacher}</td>
+                        <td style={style.td}>{'Demo'}</td>
+                         <td style={style.td}>{'Proposed'}</td>
                       </tr>
                     ))}
                   </tbody>

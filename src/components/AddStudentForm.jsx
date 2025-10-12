@@ -159,7 +159,7 @@ const AddStudentForm = () => {
     page: {
       background: '#f4f6f8',
       minHeight: '100vh',
-      padding: '32px 16px',
+      padding: '5px 16px',
     },
     container: {
       maxWidth: 900,
@@ -172,7 +172,8 @@ const AddStudentForm = () => {
     heading: {
       textAlign: 'center',
       color: '#2c3e50',
-      marginBottom: 24,
+      fontSize: 24,
+      marginBottom: 20,
     },
 
     // UPDATED: The main form uses flex-wrap so fields wrap nicely
