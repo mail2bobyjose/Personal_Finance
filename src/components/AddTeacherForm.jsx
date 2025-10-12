@@ -1,13 +1,16 @@
 // src/components/AddTeacherForm.jsx
 import React, { useState } from 'react';
 
+const subjectsList = ['Maths', 'English', 'Drawing'];
+
+
 const initialForm = {
-  firstName: '',
-  lastName: '',
-  subjects: [],
-  mobile: '',
-  email: '',
-  startDate: '',
+  teacherfirstname: '',
+  teacherlastname: '',
+  taughtsubjects: [],
+  teachermobile: '',
+  teacheremail: '',
+  teacherstartdate: '',
 };
 
 const style = {
@@ -107,20 +110,50 @@ const AddTeacherForm = () => {
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
+  const [teacherid, setteacherid] = useState(null);
+
   const handleSubjectToggle = (subject) => {
     setForm((prev) => {
-      const exists = prev.subjects.includes(subject);
-      const subjects = exists
-        ? prev.subjects.filter((s) => s !== subject)
-        : [...prev.subjects, subject];
-      return { ...prev, subjects };
+      const exists = prev.taughtsubjects.includes(subject);
+      const taughtsubjects = exists
+        ? prev.taughtsubjects.filter((s) => s !== subject)
+        : [...prev.taughtsubjects, subject];
+      return { ...prev, taughtsubjects };
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Add Teacher form submitted:', form);
-    alert('Teacher saved (demo).');
+    try {
+      const payload = {
+        teacherfirstname: form.teacherfirstname,
+        teacherlastname: form.teacherlastname,
+        taughtsubjects: form.taughtsubjects,
+        teachermobile: form.teachermobile,
+        teacheremail: form.teacheremail,
+        teacherstartdate: form.teacherstartdate,
+      };
+
+      console.log(payload);
+      const response = await fetch(
+        'https://lemvz53c6g.execute-api.ap-southeast-2.amazonaws.com/dev/addteacher',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        }
+      );
+      const data = await response.json();
+      if (response.ok) {
+        setteacherid(data.teacherid);
+        alert(`✅ Teacher added successfully! ID: ${data.teacherid}`);
+      } else {
+        alert('❌ Error: ' + data.message);
+      }
+    } catch (err) {
+      console.error(err);
+      alert('❌ Network or server error');
+    }
     setForm(initialForm);
   };
 
@@ -132,22 +165,22 @@ const AddTeacherForm = () => {
           {/* Two fields side by side: First Name and Last Name */}
           <div style={style.halfWidthContainer}>
             <label style={{ ...style.label, ...style.halfWidthField }}>
-              First Name
+              Teacher First Name
               <input
-                name="firstName"
+                name="teacherfirstname"
                 type="text"
-                value={form.firstName}
+                value={form.teacherfirstname}
                 onChange={handleChange}
                 required
                 style={style.input}
               />
             </label>
             <label style={{ ...style.label, ...style.halfWidthField }}>
-              Last Name
+              Teacher Last Name
               <input
-                name="lastName"
+                name="teacherlastname"
                 type="text"
-                value={form.lastName}
+                value={form.teacherlastname}
                 onChange={handleChange}
                 required
                 style={style.input}
@@ -157,12 +190,12 @@ const AddTeacherForm = () => {
 
           {/* Subjects as a fieldset */}
           <fieldset style={style.fieldset}>
-            <legend style={style.legend}>Subjects</legend>
-            {['Maths', 'English', 'Science', 'Drawing'].map((subj) => (
+            <legend style={style.legend}>Taught Subjects</legend>
+            {subjectsList.map((subj) => (
               <label key={subj} style={style.checkboxLabel}>
                 <input
                   type="checkbox"
-                  checked={form.subjects.includes(subj)}
+                  checked={form.taughtsubjects.includes(subj)}
                   onChange={() => handleSubjectToggle(subj)}
                   style={style.checkboxInput}
                 />
@@ -174,22 +207,22 @@ const AddTeacherForm = () => {
           {/* Two fields side by side: Mobile and Email */}
           <div style={style.halfWidthContainer}>
             <label style={{ ...style.label, ...style.halfWidthField }}>
-              Mobile
+              Teacher Mobile
               <input
-                name="mobile"
+                name="teachermobile"
                 type="tel"
-                value={form.mobile}
+                value={form.teachermobile}
                 onChange={handleChange}
                 required
                 style={style.input}
               />
             </label>
             <label style={{ ...style.label, ...style.halfWidthField }}>
-              Email
+              Teacher Email
               <input
-                name="email"
+                name="teacheremail"
                 type="email"
-                value={form.email}
+                value={form.teacheremail}
                 onChange={handleChange}
                 required
                 style={style.input}
@@ -199,11 +232,11 @@ const AddTeacherForm = () => {
 
           {/* Full width: Start Date */}
           <label style={style.label}>
-            Start Date
+            Teacher Start Date
             <input
-              name="startDate"
+              name="teacherstartdate"
               type="date"
-              value={form.startDate}
+              value={form.teacherstartdate}
               onChange={handleChange}
               required
               style={style.input}

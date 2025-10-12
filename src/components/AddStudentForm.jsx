@@ -390,7 +390,7 @@ const AddStudentForm = () => {
 
         {/* Tabs for Demo, Rate, Regular Classes, Suspension */}
         < div style={style.tabNav}>
-          {['demo', 'rate', 'regular', 'suspension'].map((tab) => (
+          {['demo', 'rate', 'regular Class', 'suspension'].map((tab) => (
             <button
               key={tab}
               style={style.tabBtn(activeTab === tab)}
