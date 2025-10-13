@@ -116,7 +116,7 @@ const UpdateStudentForm = () => {
   };
 
   
- //Add new Demo form handle change and function to set demo end time to 60mins from start time.
+ //*************Add new Demo form handle change and function to set demo end time to 60mins from start time.*************
 
 const handleDemoChange = (e) => {
   const { name, value } = e.target;
@@ -145,6 +145,8 @@ const handleDemoChange = (e) => {
   });
 };
 
+
+
 // Helper function to calculate default end time from a given start time
 function calculateDefaultEndTime(startTime) {
   if (!startTime) return '';
@@ -161,7 +163,8 @@ function calculateDefaultEndTime(startTime) {
  const selectedteacher = ({teacherid:'1234',teacherfirstname: 'sumathi',teacherlastname: 'valavu'  });
 
 
-//Function to be added to retrieve student details to show in tabnavs
+
+//*************Function to be added to retrieve student details to show in tabnavs
 
 const retrievedemos = async (student) => {
   console.log('insdie demo retrieval function');
@@ -195,7 +198,7 @@ const retrievedemos = async (student) => {
   }
 };
 
-
+//*************
 
 
 
@@ -212,7 +215,7 @@ const retrievedemos = async (student) => {
   };
 
 
-//Function to save demo to backend.
+//*************Function to save demo to backend.*************
 
   const saveDemo = async () => {
   const timezone = selectedStudent.timezone || 'Asia/Kolkata'; // default fallback
@@ -260,7 +263,7 @@ const retrievedemos = async (student) => {
 
 
 
-  // Rate handlers
+  ///************* Rate handlers
   const handleRateChange = (e) => {
     const { name, value } = e.target;
     setRateForm((prev) => ({ ...prev, [name]: value }));
@@ -279,7 +282,8 @@ const retrievedemos = async (student) => {
     alert('Rate saved!');
   };
 
-  // Class handlers
+
+  //************* Regulat Class handlers************* 
   const handleClassChange = (e) => {
     const { name, value } = e.target;
     setClassForm((prev) => ({ ...prev, [name]: value }));
@@ -301,7 +305,7 @@ const retrievedemos = async (student) => {
     setShowClassForm(false);
   };
 
-  // Suspension handlers
+  //*************Suspension handlers************* 
   const handleSuspensionChange = (e) => {
     const { name, value } = e.target;
     setSuspensionForm((prev) => ({ ...prev, [name]: value }));
@@ -317,7 +321,7 @@ const retrievedemos = async (student) => {
     setShowSuspensionForm(false);
   };
 
-  // Inline styles (unchanged)
+//*************Inline styles ************* 
     const style = {
     page: {
       background: '#f4f6f8',
@@ -441,6 +445,11 @@ const retrievedemos = async (student) => {
     },
   };
 
+  //*************Inline styles  ends ************* 
+
+
+  //************* DOM return starts************* 
+  //************* Searching for students and setting selected student************* 
   return (
     <div style={style.page}>
     <div style={style.container}>
@@ -474,8 +483,9 @@ const retrievedemos = async (student) => {
       </label>
     )}
   </div>
-</form>
-      <form style={style.form} onSubmit={submitForm}>
+</form> 
+{/* Displaying details of the selected student */ }
+    <form style={style.form} onSubmit={submitForm}>
          <div style={style.halfWidthContainer}>
             <label style={style.halfWidthField}>
               Student First Name
@@ -581,7 +591,8 @@ const retrievedemos = async (student) => {
           Update Student
         </button>
       </form>
-      {/* Tabs for Demo, Rate, Regular Classes, Suspension */}
+      
+  {/* Tabs for Demo, Rate, Regular Classes, Suspension */}
         < div style={style.tabNav}>
           {['demo', 'rate', 'regular Class', 'suspension'].map((tab) => (
             <button
@@ -594,7 +605,7 @@ const retrievedemos = async (student) => {
             </button>
           ))}
         </div>
-
+{/* Demo Tabs  */}
         <div style={style.tabContent}>
           {/* Demo Tab */}
           {activeTab === 'demo' && (
@@ -723,7 +734,7 @@ const retrievedemos = async (student) => {
             </>
           )}
 
-          {/* Rate Tab */}
+{/* Rate Tab */}
           {activeTab === 'rate' && (
             <>
               {!showRateForm && (
