@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { DateTime } from 'luxon';
 const subjectsList = ['Math', 'Science', 'English', 'History']; // Add actual subjects
 const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
@@ -81,6 +82,9 @@ const UpdateStudentForm = () => {
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
+
+  //Function to handle section of students from the student drop down
+
   const handleStudentSelect = (e) => {
     const selectedId = e.target.value;
     const student = searchResults.find((s) => s.studentId === selectedId);
@@ -102,6 +106,7 @@ const UpdateStudentForm = () => {
 }));
 
       setSearchResults([]);
+      retrievedemos(student);
     }
   };
 
@@ -111,7 +116,7 @@ const UpdateStudentForm = () => {
   };
 
   
- //Demo handle change and function to set demo end time to 60mins from start time.
+ //Add new Demo form handle change and function to set demo end time to 60mins from start time.
 
 const handleDemoChange = (e) => {
   const { name, value } = e.target;
@@ -153,6 +158,45 @@ function calculateDefaultEndTime(startTime) {
   return `${endHours}:${endMinutes}`;
 };
 
+ const selectedteacher = ({teacherid:'1234',teacherfirstname: 'sumathi',teacherlastname: 'valavu'  });
+
+
+//Function to be added to retrieve student details to show in tabnavs
+
+const retrievedemos = async (student) => {
+  console.log('insdie demo retrieval function');
+  try {
+    const payload = {
+     studentId: student.studentId,
+
+    };
+
+    console.log('Submitting payload:', payload);
+
+    const response = await fetch('https://u0k5cdwk64.execute-api.ap-southeast-2.amazonaws.com/dev/addclass', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const data = await response.json();
+    console.log(data.classid);
+    if (response.ok) {
+      alert('✅ Class saved successfully!');
+    } else {
+      alert(`❌ Error: ${data.message}`);
+    }
+
+  } catch (err) {
+    console.error('❌ Network or server error:', err);
+    alert('❌ An error occurred while saving the demo.');
+  }
+};
+
+
+
 
 
   const addDemo = () => {
@@ -168,25 +212,31 @@ function calculateDefaultEndTime(startTime) {
   };
 
 
+//Function to save demo to backend.
+
   const saveDemo = async () => {
-  console.log('insdiefunction');
+  const timezone = selectedStudent.timezone || 'Asia/Kolkata'; // default fallback
+  const startUTC = DateTime.fromISO(`${demoForm.date}T${demoForm.startTime}`, { zone: timezone }).toUTC().toISO(); 
+  const endUTC = DateTime.fromISO(`${demoForm.date}T${demoForm.endTime}`, { zone: timezone }).toUTC().toISO(); 
+
   try {
     const payload = {
       studentId: selectedStudent.studentId,
       studentLastName: selectedStudent.studentLastName,
       studentFirstName: selectedStudent.studentFirstName,
-      classDate: demoForm.date,
-      classstarttime: demoForm.startTime,
-      classendtime: demoForm.endTime,
+      classstartutc: startUTC,
+      classendutc: endUTC,
       classsubject: demoForm.subject,
-      classteacher: demoForm.teacher,
+      classteacherid: selectedteacher.teacherid,
+      classteacherfirstname: selectedteacher.teacherfirstname,
+      classteacherlaststname: selectedteacher.teacherlastname,
       classstatus: 'proposed',
       classtype: 'demo'
     };
 
     console.log('Submitting payload:', payload);
 
-    const response = await fetch('https://your-api-endpoint.amazonaws.com/demo', {
+    const response = await fetch('https://u0k5cdwk64.execute-api.ap-southeast-2.amazonaws.com/dev/addclass', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -195,9 +245,9 @@ function calculateDefaultEndTime(startTime) {
     });
 
     const data = await response.json();
-
+    console.log(data.classid);
     if (response.ok) {
-      alert('✅ Demo saved successfully!');
+      alert('✅ Class saved successfully!');
     } else {
       alert(`❌ Error: ${data.message}`);
     }
@@ -207,6 +257,7 @@ function calculateDefaultEndTime(startTime) {
     alert('❌ An error occurred while saving the demo.');
   }
 };
+
 
 
   // Rate handlers
