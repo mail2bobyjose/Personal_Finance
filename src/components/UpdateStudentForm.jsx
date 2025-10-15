@@ -221,6 +221,7 @@ const fetchAndSetDemos = async (student) => {
 //*************Function to save demo to backend.*************
 
 const saveDemo = async (selectedStudent) => {
+  console.log('Selected student =', selectedStudent);
   if (!selectedStudent) {
     alert("Please search for a student before adding demo");
     return;
@@ -237,19 +238,26 @@ const saveDemo = async (selectedStudent) => {
     .fromISO(`${demoForm.date}T${demoForm.endTime}`, { zone: timezone })
     .toUTC()
     .toISO();
+  const istDate = DateTime
+  .fromISO(`${demoForm.date}T${demoForm.startTime}`, { zone: timezone }) // interpret in user's TZ
+  .setZone('Asia/Kolkata')                                       // convert to IST
+  .toISODate();   
+
 
   const payload = {
     studentId: selectedStudent.studentId,
     studentLastName: selectedStudent.studentLastName,
     studentFirstName: selectedStudent.studentFirstName,
+    classdateist: istDate,
     classstartutc: startUTC,
     classendutc: endUTC,
     classsubject: demoForm.subject,
     classteacherid: selectedteacher.teacherid,
     classteacherfirstname: selectedteacher.teacherfirstname,
-    classteacherlastname: selectedteacher.teacherlastname, // ✅ fixed typo
+    classteacherlastname: selectedteacher.teacherlastname, 
     classstatus: 'proposed',
-    classtype: 'demo'
+    classtype: 'demo',
+    studenttimezone: selectedStudent.timezone || 'Asia/Kolkata',
   };
 
   console.log('Submitting payload:', payload);
@@ -713,7 +721,7 @@ const saveDemo = async (selectedStudent) => {
                     />
                   </label>
                   <div style={{ flex: '1 1 100%', marginTop: 10 }}>
-                    <button style={style.button} onClick={(demoForm) => saveDemo()} type="submit">
+                    <button style={style.button} onClick={(demoForm) => saveDemo(selectedStudent)} type="submit">
                       Save Demo
                     </button>
                     <button
