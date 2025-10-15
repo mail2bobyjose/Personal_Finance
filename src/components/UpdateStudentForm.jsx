@@ -18,12 +18,14 @@ const UpdateStudentForm = () => {
 
   const [form, setForm] = useState(initialForm);
   const [searchResults, setSearchResults] = useState([]);
-  const [selectedStudent, setSelectedStudent] = useState(null);
+  const [selectedStudent, setSelectedStudent] = useState({});
   const [activeTab, setActiveTab] = useState('demo');
+  const isDisabled = selectedStudent.studentId; 
+
    // Demo states
     const [showDemoForm, setShowDemoForm] = useState(false);
     const [demoForm, setDemoForm] = useState({ date: '', startTime: '', endTime: '', subject: '', teacher: '' });
-    const [demos, setDemos] = useState([]);
+    const [retrievedDemos, setRetrievedDemos] = useState([]);
    
     // Rate states
     const [showRateForm, setShowRateForm] = useState(false);
@@ -106,7 +108,7 @@ const UpdateStudentForm = () => {
 }));
 
       setSearchResults([]);
-      retrievedemos(student);
+      fetchAndSetDemos(student);
     }
   };
 
@@ -166,12 +168,12 @@ function calculateDefaultEndTime(startTime) {
 
 //*************Function to be added to retrieve student details to show in tabnavs
 
-const retrievedemos = async (student) => {
-  console.log('insdie demo retrieval function');
+
+const fetchAndSetDemos = async (student) => {
+  console.log('inside demo retrieval function');
   try {
     const payload = {
-     studentId: student.studentId,
-
+      studentId: student.studentId,
     };
 
     console.log('Submitting payload:', payload);
@@ -186,8 +188,11 @@ const retrievedemos = async (student) => {
 
     const data = await response.json();
     console.log(data.classid);
+
     if (response.ok) {
-      alert('✅ Class saved successfully!');
+      // Assuming the API returns a list of demos
+      setRetrievedDemos(data.demos || []); // <- update this if your API returns the demo list differently
+      alert('✅ Demo retrieved successfully!');
     } else {
       alert(`❌ Error: ${data.message}`);
     }
@@ -199,8 +204,6 @@ const retrievedemos = async (student) => {
 };
 
 //*************
-
-
 
   const addDemo = () => {
     if (!demoForm.date || !demoForm.startTime || !demoForm.endTime || !demoForm.subject || !demoForm.teacher) {
@@ -217,28 +220,41 @@ const retrievedemos = async (student) => {
 
 //*************Function to save demo to backend.*************
 
-  const saveDemo = async () => {
-  const timezone = selectedStudent.timezone || 'Asia/Kolkata'; // default fallback
-  const startUTC = DateTime.fromISO(`${demoForm.date}T${demoForm.startTime}`, { zone: timezone }).toUTC().toISO(); 
-  const endUTC = DateTime.fromISO(`${demoForm.date}T${demoForm.endTime}`, { zone: timezone }).toUTC().toISO(); 
+const saveDemo = async (selectedStudent) => {
+  if (!selectedStudent) {
+    alert("Please search for a student before adding demo");
+    return;
+  }
+
+  const timezone = selectedStudent.timezone || 'Asia/Kolkata';
+
+  const startUTC = DateTime
+    .fromISO(`${demoForm.date}T${demoForm.startTime}`, { zone: timezone })
+    .toUTC()
+    .toISO();
+
+  const endUTC = DateTime
+    .fromISO(`${demoForm.date}T${demoForm.endTime}`, { zone: timezone })
+    .toUTC()
+    .toISO();
+
+  const payload = {
+    studentId: selectedStudent.studentId,
+    studentLastName: selectedStudent.studentLastName,
+    studentFirstName: selectedStudent.studentFirstName,
+    classstartutc: startUTC,
+    classendutc: endUTC,
+    classsubject: demoForm.subject,
+    classteacherid: selectedteacher.teacherid,
+    classteacherfirstname: selectedteacher.teacherfirstname,
+    classteacherlastname: selectedteacher.teacherlastname, // ✅ fixed typo
+    classstatus: 'proposed',
+    classtype: 'demo'
+  };
+
+  console.log('Submitting payload:', payload);
 
   try {
-    const payload = {
-      studentId: selectedStudent.studentId,
-      studentLastName: selectedStudent.studentLastName,
-      studentFirstName: selectedStudent.studentFirstName,
-      classstartutc: startUTC,
-      classendutc: endUTC,
-      classsubject: demoForm.subject,
-      classteacherid: selectedteacher.teacherid,
-      classteacherfirstname: selectedteacher.teacherfirstname,
-      classteacherlaststname: selectedteacher.teacherlastname,
-      classstatus: 'proposed',
-      classtype: 'demo'
-    };
-
-    console.log('Submitting payload:', payload);
-
     const response = await fetch('https://u0k5cdwk64.execute-api.ap-southeast-2.amazonaws.com/dev/addclass', {
       method: 'POST',
       headers: {
@@ -247,14 +263,15 @@ const retrievedemos = async (student) => {
       body: JSON.stringify(payload),
     });
 
-    const data = await response.json();
-    console.log(data.classid);
-    if (response.ok) {
-      alert('✅ Class saved successfully!');
-    } else {
-      alert(`❌ Error: ${data.message}`);
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      alert(`❌ Error: ${errorData.message || 'Unknown error occurred'}`);
+      return;
     }
 
+    const data = await response.json();
+    console.log(data.classid);
+    alert('✅ Class saved successfully!');
   } catch (err) {
     console.error('❌ Network or server error:', err);
     alert('❌ An error occurred while saving the demo.');
@@ -611,9 +628,16 @@ const retrievedemos = async (student) => {
           {activeTab === 'demo' && (
             <>
               {!showDemoForm && (
-                <button disabled={!selectedStudent}
-                   style={{...style.smallBtn,...(!selectedStudent && {backgroundColor: '#cccccc',color: '#666666', cursor: 'not-allowed'})}}
-                  onClick={() => setShowDemoForm(true)}
+                <button disabled={!isDisabled}
+                   style={{
+          ...style.smallBtn,
+          ...(!isDisabled && {
+            backgroundColor: '#cccccc',
+            color: '#666666',
+            cursor: 'not-allowed',
+          }),
+        }}
+        onClick={() => setShowDemoForm(true)}
                   type="button"
                 >
                   Add Demo
@@ -703,7 +727,7 @@ const retrievedemos = async (student) => {
                 </form>
               )}
 
-              {demos.length > 0 && (
+              {selectedStudent.studentId && retrievedDemos.length > 0 && (
                 <table style={style.table}>
                   <thead>
                     <tr>
@@ -717,15 +741,15 @@ const retrievedemos = async (student) => {
                     </tr>
                   </thead>
                   <tbody>
-                    {demos.map((demo, idx) => (
+                    {retrievedDemos.map((retrievedDemo, idx) => (
                       <tr key={idx}>
-                        <td style={style.td}>{demo.date}</td>
-                        <td style={style.td}>{demo.startTime}</td>
-                        <td style={style.td}>{demo.endTime}</td>
-                        <td style={style.td}>{demo.subject}</td>
-                        <td style={style.td}>{demo.teacher}</td>
-                        <td style={style.td}>{'Demo'}</td>
-                         <td style={style.td}>{'Proposed'}</td>
+                        <td style={style.td}>{retrievedDemo.date}</td>
+                        <td style={style.td}>{retrievedDemo.starttime}</td>
+                        <td style={style.td}>{retrievedDemo.endTime}</td>
+                        <td style={style.td}>{retrievedDemo.subject}</td>
+                        <td style={style.td}>{retrievedDemo.teacher}</td>
+                        <td style={style.td}>{retrievedDemo.type}</td>
+                         <td style={style.td}>{retrievedDemo.status}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -939,8 +963,8 @@ const retrievedemos = async (student) => {
                 <table style={style.table}>
                   <thead>
                     <tr>
-                      <th style={style.th}>Day</th>
-                      <th style={style.th}>Start Time</th>
+                      <th style={style.th}>Start</th>
+                      <th style={style.th}>End</th>
                       <th style={style.th}>End Time</th>
                       <th style={style.th}>Subject</th>
                       <th style={style.th}>Teacher</th>
@@ -949,8 +973,8 @@ const retrievedemos = async (student) => {
                   <tbody>
                     {regularClasses.map((cls, idx) => (
                       <tr key={idx}>
-                        <td style={style.td}>{cls.day}</td>
-                        <td style={style.td}>{cls.startTime}</td>
+                        <td style={style.td}>{cls.startdate}</td>
+                        <td style={style.td}>{cls.enddate}</td>
                         <td style={style.td}>{cls.endTime}</td>
                         <td style={style.td}>{cls.subject}</td>
                         <td style={style.td}>{cls.teacher}</td>
