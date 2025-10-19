@@ -5,7 +5,7 @@ import CalendarView from './components/CalendarView.jsx';
 import AddStudentForm from './components/AddStudentForm.jsx';
 import AddTeacherForm from './components/AddTeacherForm.jsx';
 import UpdateStudentForm from './components/UpdateStudentForm.jsx';
-import Classes from './components/classes.jsx';
+import Classes from './components/Classes.jsx';
 
 import { BrowserRouter, Routes, Route, useNavigate } from 'react-router-dom';
 
