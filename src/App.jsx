@@ -5,6 +5,7 @@ import CalendarView from './components/CalendarView.jsx';
 import AddStudentForm from './components/AddStudentForm.jsx';
 import AddTeacherForm from './components/AddTeacherForm.jsx';
 import UpdateStudentForm from './components/UpdateStudentForm.jsx';
+import Classes from './components/classes.jsx';
 
 import { BrowserRouter, Routes, Route, useNavigate } from 'react-router-dom';
 
@@ -40,8 +41,19 @@ function MenuBar() {
           </button>
         </div>
       </div>
+      <div className="dropdown-wrapper">
+        <div className="menu-item">Invoicing</div>
+        <div className="submenu">
+          <button className="submenu-item" onClick={() => navigate('/studentinvoice')}>
+            Student Invoicing
+          </button>
+          <button className="submenu-item" onClick={() => navigate('/teacherinvoice')}>
+            Teacher Invoicing
+          </button>
+        </div>
+      </div>
 
-      <button className="menu-item" onClick={() => console.log('Invoice clicked')}>Invoice</button>
+      <button className="menu-item" onClick={() => navigate('/class')}>Classes</button>
       <button className="menu-item" onClick={() => console.log('Login clicked')}>Login</button>
     </nav>
   );
@@ -63,6 +75,7 @@ function App() {
            <Route path="/updatestudent" element={<UpdateStudentForm />} />
           <Route path="/addteacher" element={<AddTeacherForm />} />
           <Route path="/updateteacher" element={<div>Update Teacher Page (Coming Soon)</div>} />
+          <Route path="/class" element={<Classes/>} />
         </Routes>
       </div>
     </BrowserRouter>

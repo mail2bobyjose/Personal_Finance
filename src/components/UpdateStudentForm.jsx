@@ -63,7 +63,7 @@ const UpdateStudentForm = () => {
 
         if (response.ok && data.results && data.results.length > 0) {
           setSearchResults([...data.results]);
-        } else {
+          } else {
           setSearchResults([]);
         }
       } catch (err) {
@@ -168,38 +168,26 @@ function calculateDefaultEndTime(startTime) {
 
 //*************Function to be added to retrieve student details to show in tabnavs
 
-
 const fetchAndSetDemos = async (student) => {
-  console.log('inside demo retrieval function');
+  console.log('Inside demo retrieval function');
+
   try {
-    const payload = {
-      studentId: student.studentId,
-    };
-
-    console.log('Submitting payload:', payload);
-
-    const response = await fetch('https://u0k5cdwk64.execute-api.ap-southeast-2.amazonaws.com/dev/addclass', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(payload),
-    });
-
+    const response = await fetch(`https://gqlatmkhab.execute-api.ap-southeast-2.amazonaws.com/dev/getdemo?studentId=${student.studentId}`);
+    
     const data = await response.json();
-    console.log(data.classid);
+    console.log('Full response data:', data);
 
     if (response.ok) {
-      // Assuming the API returns a list of demos
-      setRetrievedDemos(data.demos || []); // <- update this if your API returns the demo list differently
+      setRetrievedDemos(data || []);
       alert('✅ Demo retrieved successfully!');
     } else {
-      alert(`❌ Error: ${data.message}`);
+      console.error('API Error:', data);
+      alert(`❌ Error: ${data.message || 'Unexpected error from server.'}`);
     }
 
   } catch (err) {
     console.error('❌ Network or server error:', err);
-    alert('❌ An error occurred while saving the demo.');
+    alert('❌ An error occurred while retrieving the demo.'); 
   }
 };
 
@@ -280,6 +268,9 @@ const saveDemo = async (selectedStudent) => {
     const data = await response.json();
     console.log(data.classid);
     alert('✅ Class saved successfully!');
+    setShowDemoForm(false);
+    fetchAndSetDemos(selectedStudent);
+
   } catch (err) {
     console.error('❌ Network or server error:', err);
     alert('❌ An error occurred while saving the demo.');
@@ -475,7 +466,7 @@ const saveDemo = async (selectedStudent) => {
 
   //************* DOM return starts************* 
   //************* Searching for students and setting selected student************* 
-  return (
+ return (
     <div style={style.page}>
     <div style={style.container}>
       <h2 style={style.heading}>Update Student</h2>
@@ -618,8 +609,8 @@ const saveDemo = async (selectedStudent) => {
       </form>
       
   {/* Tabs for Demo, Rate, Regular Classes, Suspension */}
-        < div style={style.tabNav}>
-          {['demo', 'rate', 'regular Class', 'suspension'].map((tab) => (
+        <div style={style.tabNav}>
+          {['demo', 'rate', 'Regular Class', 'suspension'].map((tab) => (
             <button
               key={tab}
               style={style.tabBtn(activeTab === tab)}
@@ -735,34 +726,38 @@ const saveDemo = async (selectedStudent) => {
                 </form>
               )}
 
-              {selectedStudent.studentId && retrievedDemos.length > 0 && (
-                <table style={style.table}>
-                  <thead>
-                    <tr>
-                      <th style={style.th}>Date</th>
-                      <th style={style.th}>Start Time</th>
-                      <th style={style.th}>End Time</th>
-                      <th style={style.th}>Subject</th>
-                      <th style={style.th}>Teacher</th>
-                      <th style={style.th}>Type</th>
-                      <th style={style.th}>Status</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {retrievedDemos.map((retrievedDemo, idx) => (
-                      <tr key={idx}>
-                        <td style={style.td}>{retrievedDemo.date}</td>
-                        <td style={style.td}>{retrievedDemo.starttime}</td>
-                        <td style={style.td}>{retrievedDemo.endTime}</td>
-                        <td style={style.td}>{retrievedDemo.subject}</td>
-                        <td style={style.td}>{retrievedDemo.teacher}</td>
-                        <td style={style.td}>{retrievedDemo.type}</td>
-                         <td style={style.td}>{retrievedDemo.status}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              )}
+             {retrievedDemos.length > 0 ? (
+  <table style={style.table}>
+    <thead>
+      <tr>
+        <th style={style.th}>Date</th>
+        <th style={style.th}>Start Time</th>
+        <th style={style.th}>End Time</th>
+        <th style={style.th}>Subject</th>
+        <th style={style.th}>Teacher</th>
+        <th style={style.th}>Student Timezone</th>
+        <th style={style.th}>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      {[...retrievedDemos]
+        .sort((a, b) => new Date(a.classDate) - new Date(b.classDate))
+        .map((retrievedDemo, idx) => (
+        <tr key={idx}>
+          <td style={style.td}>{retrievedDemo.classDate}</td>
+          <td style={style.td}>{retrievedDemo.classStartTime}</td>
+          <td style={style.td}>{retrievedDemo.classEndTime}</td>
+          <td style={style.td}>{retrievedDemo.classSubject}</td>
+          <td style={style.td}>{retrievedDemo.classTeacher}</td>
+          <td style={style.td}>{retrievedDemo.studentTimezone}</td>
+          <td style={style.td}>{retrievedDemo.classStatus}</td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+) : (
+  <p>No demo sessions have been scheduled for this student.</p>
+)}
             </>
           )}
 
@@ -865,7 +860,7 @@ const saveDemo = async (selectedStudent) => {
           )}
 
           {/* Regular Classes Tab */}
-          {activeTab === 'regular' && (
+          {activeTab === 'Regular Class' && (
             <>
               {!showClassForm && (
                 <button
@@ -1096,5 +1091,4 @@ const saveDemo = async (selectedStudent) => {
     
   );
 };
-
 export default UpdateStudentForm;
