@@ -1,96 +1,63 @@
 import React, { useState, useEffect } from "react";
 import dayjs from "dayjs";
+import timezone from "dayjs/plugin/timezone";
+import utc from "dayjs/plugin/utc";
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 const hours = Array.from({ length: 24 }, (_, i) => i); // 12AM - 12PM
 
-const meetings = [
-  {
-    meetingID: 1,
-    date: "2025-10-19",
-    startTime: "09:15",
-    endTime: "10:15",
-    studentName: "John Doe",
-    subject: "Math",
-    teacherName: "Smith",
-    meetingType: "Demo",
-    meetingStatus: "Cancelled",
-  },
-  {
-    meetingID: 2,
-    date: "2025-10-03",
-    startTime: "09:30",
-    endTime: "10:00",
-    studentName: "Jane",
-    subject: "Physics",
-    teacherName: "Brown",
-    meetingType: "Demo",
-    meetingStatus: "Proposed",
-  },
-  {
-    meetingID: 3,
-    date: "2025-10-19",
-    startTime: "09:45",
-    endTime: "10:45",
-    studentName: "Alice Johnson",
-    subject: "English",
-    teacherName: "Lee",
-    meetingType: "Regular",
-    meetingStatus: "Proposed",
-  },
-  {
-    meetingID: 4,
-    date: "2025-10-19",
-    startTime: "22:00",
-    endTime: "23:00",
-    studentName: "Bob Smith",
-    subject: "Chemistry",
-    teacherName: "Green",
-    meetingType: "Adhoc",
-    meetingStatus: "Scheduled",
-  },
-  {
-    meetingID: 5,
-    date: "2025-10-19",
-    startTime: "03:00",
-    endTime: "04:00",
-    studentName: "Carol White",
-    subject: "Biology",
-    teacherName: "Green",
-    meetingType: "Regular",
-    meetingStatus: "Completed",
-  },
-  {
-    meetingID: 6,
-    date: "2025-10-19",
-    startTime: "03:00",
-    endTime: "04:00",
-    studentName: "Dave Black",
-    subject: "Grade 11",
-    teacherName: "Brown",
-    meetingType: "Demo",
-    meetingStatus: "Scheduled",
-  },
-];
 
-export default function DailyCalendar() {
-  const [currentDate, setCurrentDate] = useState(dayjs(new Date()));
-  const [currentTimeTop, setCurrentTimeTop] = useState(null);
+function convertUTCToLocalTime(utcTime, tz) {
+  return dayjs.utc(utcTime).tz(tz).format("HH:mm:ss");
+}
 
-  const meetingsWithDateTime = meetings.map((m) => ({
-    ...m,
-    start: dayjs(`${m.date}T${m.startTime}`),
-    end: dayjs(`${m.date}T${m.endTime}`),
-  }));
+  export default function DailyCalendar() {
+    const [currentDate, setCurrentDate] = useState(dayjs(new Date()));
+    const [currentTimeTop, setCurrentTimeTop] = useState(null);
+    const [meetings, setMeetings] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
-  const filteredMeetings = meetingsWithDateTime
-    .filter((m) => m.start.isSame(currentDate, "day"))
-    .sort((a, b) => a.start.diff(b.start));
+    // Fetch meetings from backend API on component mount
+   useEffect(() => {
+  const fetchMeetings = async () => {
+    try {
+      const dateStr = currentDate.format("YYYY-MM-DD");
 
-  const goPrevDay = () => setCurrentDate(currentDate.subtract(1, "day"));
-  const goNextDay = () => setCurrentDate(currentDate.add(1, "day"));
-  const formatTime = (date) => dayjs(date).format("h:mm A");
+      const response = await fetch(`https://615z8src85.execute-api.ap-southeast-2.amazonaws.com/default/getclass?date=${dateStr}`);
+      const data = await response.json();
 
-  // Position current time line based on current time, update every minute
+      const parsed = typeof data.body === "string" ? JSON.parse(data.body) : data;
+
+      // 🔁 Map DynamoDB format to your internal meeting format
+      const meetings = (parsed.items || []).map((item) => ({
+        meetingID: item.classid,    
+        date: item.classdateist,
+        startTime: convertUTCToLocalTime(item.classstartutc, "Asia/Kolkata"),
+        endTime: convertUTCToLocalTime(item.classendutc, "Asia/Kolkata"),
+        studentName: `${item.studentFirstName} ${item.studentLastName}`,
+        subject: item.classsubject,
+        teacherName: `${item.classteacherfirstname} ${item.classteacherlastname}`,
+        meetingType: item.classtype,
+        meetingStatus: item.classstatus,
+      }));
+
+      setMeetings(meetings);
+      setLoading(false);
+    } catch (err) {
+      console.error("Fetch error:", err);
+      setError("Failed to fetch meetings. Contact admin");
+      setLoading(false);
+    }
+  };
+
+  fetchMeetings();
+}, [currentDate]);
+
+
+
+  // Calculate current time line position
   useEffect(() => {
     const calculateCurrentTimeTop = () => {
       const now = dayjs();
@@ -100,21 +67,30 @@ export default function DailyCalendar() {
       }
       const hour = now.hour();
       const minute = now.minute();
-      // 64px per hour, 16px per quarter hour segment, so 1px = 64/60 = 1.0666...
       const topPos = hour * 64 + (minute / 60) * 64;
       setCurrentTimeTop(topPos);
     };
 
     calculateCurrentTimeTop();
-
     const interval = setInterval(calculateCurrentTimeTop, 60000);
     return () => clearInterval(interval);
   }, [currentDate]);
 
+  const meetingsWithDateTime = meetings.length
+    ? meetings.map((m) => ({
+        ...m,
+        start: dayjs(`${m.date}T${m.startTime}`),
+        end: dayjs(`${m.date}T${m.endTime}`),
+      }))
+    : [];
+
+  const filteredMeetings = meetingsWithDateTime
+    .filter((m) => m.start.isSame(currentDate, "day"))
+    .sort((a, b) => a.start.diff(b.start));
+
   const processedMeetings = [];
   filteredMeetings.forEach((meeting) => {
-    const start = meeting.start;
-    const end = meeting.end;
+    const { start, end } = meeting;
     let column = 0;
 
     while (
@@ -128,7 +104,7 @@ export default function DailyCalendar() {
       column++;
     }
 
-    processedMeetings.push({ ...meeting, column, start, end });
+    processedMeetings.push({ ...meeting, column });
   });
 
   const maxColumns = processedMeetings.length
@@ -139,23 +115,26 @@ export default function DailyCalendar() {
   const totalWidth = 600;
   const blockWidth = (totalWidth - (maxColumns - 1) * columnGap) / maxColumns;
 
+  const goPrevDay = () => setCurrentDate(currentDate.subtract(1, "day"));
+  const goNextDay = () => setCurrentDate(currentDate.add(1, "day"));
+  const formatTime = (date) => dayjs(date).format("h:mm A");
+
   const getStatusColor = (status) => {
     switch (status.toLowerCase()) {
       case "proposed":
-        return "hsla(54, 100%, 83%, 1.00)"; // light blue
+        return "hsla(54, 100%, 83%, 1.00)";
       case "scheduled":
-        return "#a8ffa8"; // light green
+        return "#a8ffa8";
       case "completed":
-        return "#4caf50"; // darker green
+        return "#4caf50";
       case "cancelled":
       case "canceled":
-        return "#ff6b6b"; // red
+        return "#ff6b6b";
       default:
-        return "#7e828bff"; // default gray
+        return "#7e828bff";
     }
   };
 
-  // Abbreviate meeting type and background color for the small type badge
   const getMeetingTypeAbbr = (type) => {
     switch (type.toLowerCase()) {
       case "regular":
@@ -169,16 +148,17 @@ export default function DailyCalendar() {
     }
   };
 
+  if (loading) return <div>Loading meetings...</div>;
+  if (error) return <div>{error}</div>;
+
   return (
     <div style={styles.page}>
       <div style={styles.header}>
         <button style={styles.button} onClick={goPrevDay}>
           ⬅ Previous
         </button>
-        <div>
-          <div style={{ fontSize: "18px", color: "#555" }}>
-            {currentDate.format("MMMM D, YYYY")}
-          </div>
+        <div style={{ fontSize: "18px", color: "#555" }}>
+          {currentDate.format("MMMM D, YYYY")}
         </div>
         <button style={styles.button} onClick={goNextDay}>
           Next ➡
@@ -187,13 +167,14 @@ export default function DailyCalendar() {
 
       <div style={styles.calendarContainer}>
         <div style={styles.calendarGrid}>
-          {/* Horizontal Lines */}
+          {/* Hour lines */}
           {hours.map((hour) => (
             <div
               key={`hour-${hour}`}
               style={{ ...styles.hourLine, top: `${hour * 64}px` }}
             />
           ))}
+          {/* Quarter-hour lines */}
           {hours.map((hour) =>
             [15, 30, 45].map((minute, idx) => (
               <div
@@ -205,15 +186,11 @@ export default function DailyCalendar() {
               />
             ))
           )}
-
-          {/* Time Labels */}
+          {/* Time labels */}
           {hours.map((hour) => (
             <div
               key={`label-${hour}`}
-              style={{
-                ...styles.timeLabel,
-                top: `${hour * 64 - 10}px`,
-              }}
+              style={{ ...styles.timeLabel, top: `${hour * 64 - 10}px` }}
             >
               {hour === 0
                 ? "12 AM"
@@ -224,18 +201,10 @@ export default function DailyCalendar() {
                 : `${hour - 12} PM`}
             </div>
           ))}
-
-          {/* Vertical Separator */}
           <div style={styles.separator}></div>
 
-          {/* Current Time Line */}
           {currentTimeTop !== null && (
-            <div
-              style={{
-                ...styles.currentTimeLine,
-                top: currentTimeTop,
-              }}
-            />
+            <div style={{ ...styles.currentTimeLine, top: currentTimeTop }} />
           )}
 
           {/* Meeting Blocks */}
@@ -259,14 +228,9 @@ export default function DailyCalendar() {
                   height: `${height}px`,
                   left: `${60 + meeting.column * (blockWidth + columnGap)}px`,
                   width: `${blockWidth}px`,
-                  backgroundColor: "#7e828bff", // neutral background
-                  display: "flex",
-                  boxShadow: "0 2px 5px rgba(0,0,0,0.2)",
-                  position: "absolute",
-                  color: "white",
+                  backgroundColor: "#7e828bff",
                 }}
               >
-                {/* Left color strip */}
                 <div
                   style={{
                     width: "8px",
@@ -275,7 +239,6 @@ export default function DailyCalendar() {
                     borderBottomLeftRadius: "10px",
                   }}
                 />
-                {/* Meeting Content */}
                 <div
                   style={{
                     padding: "8px",
@@ -298,8 +261,6 @@ export default function DailyCalendar() {
                     </div>
                     <div>Status: {meeting.meetingStatus}</div>
                   </div>
-
-                  {/* Meeting Type Badge at bottom right */}
                   <div
                     style={{
                       position: "absolute",
@@ -405,6 +366,7 @@ const styles = {
     boxShadow: "0 2px 5px rgba(0,0,0,0.2)",
     zIndex: 2,
     overflow: "hidden",
+    display: "flex",
   },
   meetingTitle: {
     fontWeight: "600",
