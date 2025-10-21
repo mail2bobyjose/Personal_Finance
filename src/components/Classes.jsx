@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 
-// Sample statuses – you can modify these
 const classStatuses = ['Scheduled', 'Completed', 'Cancelled', 'Rescheduled'];
 
 const Classes = () => {
@@ -18,34 +17,65 @@ const Classes = () => {
   const [selectedRows, setSelectedRows] = useState([]);
   const [updatedStatuses, setUpdatedStatuses] = useState({});
 
-  // Simulate result fetching
-  const handleSearch = (e) => {
-    e.preventDefault();
+const handleSearch = async (e) => {
+  e.preventDefault();
 
-    // Simulated data
-    const simulatedResults = [
-      {
-        classDate: '2025-10-18',
-        student: 'Alice Smith',
-        teacher: 'Mr. Brown',
-        subject: 'Math',
-        classType: 'Online',
-        classStatus: 'Scheduled',
-      },
-      {
-        classDate: '2025-10-19',
-        student: 'Bob Johnson',
-        teacher: 'Ms. Green',
-        subject: 'Science',
-        classType: 'Offline',
-        classStatus: 'Completed',
-      },
-    ];
+  const {
+    startDate,
+    endDate,
+    student,
+    teacher,
+    subject,
+    classType,
+    status,
+  } = filters;
 
-    setResults(simulatedResults);
+  if (!startDate) {
+    alert("Please enter a start date");
+    return;
+  }
+
+  try {
+    const url = new URL(
+      "https://615z8src85.execute-api.ap-southeast-2.amazonaws.com/default/getclass"
+    );
+
+    // Decide whether to send `date` or `startDate/endDate`
+    if (!endDate) {
+      url.searchParams.append("date", startDate);
+    } else {
+      url.searchParams.append("startDate", startDate);
+      url.searchParams.append("endDate", endDate);
+    }
+
+    // Add optional filters if present
+    if (student) url.searchParams.append("student", student);
+    if (teacher) url.searchParams.append("teacher", teacher);
+    if (subject) url.searchParams.append("subject", subject);
+    if (classType) url.searchParams.append("classType", classType);
+    if (status) url.searchParams.append("status", status);
+
+    const response = await fetch(url.toString());
+    const data = await response.json();
+    const parsed = typeof data.body === "string" ? JSON.parse(data.body) : data;
+
+    const mappedResults = (parsed.items || []).map((item) => ({
+      classDate: item.classdateist,
+      student: `${item.studentFirstName} ${item.studentLastName}`,
+      teacher: `${item.classteacherfirstname} ${item.classteacherlastname}`,
+      subject: item.classsubject,
+      classType: item.classtype,
+      classStatus: item.classstatus,
+    }));
+
+    setResults(mappedResults);
     setSelectedRows([]);
     setUpdatedStatuses({});
-  };
+  } catch (error) {
+    console.error("Failed to fetch class data:", error);
+    alert("Failed to fetch class data. Please try again later.");
+  }
+};
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -53,19 +83,13 @@ const Classes = () => {
   };
 
   const handleSelectRow = (index) => {
-    if (selectedRows.includes(index)) {
-      setSelectedRows((prev) => prev.filter((i) => i !== index));
-    } else {
-      setSelectedRows((prev) => [...prev, index]);
-    }
+    setSelectedRows((prev) =>
+      prev.includes(index) ? prev.filter((i) => i !== index) : [...prev, index]
+    );
   };
 
   const handleSelectAll = () => {
-    if (selectedRows.length === results.length) {
-      setSelectedRows([]);
-    } else {
-      setSelectedRows(results.map((_, index) => index));
-    }
+    setSelectedRows(selectedRows.length === results.length ? [] : results.map((_, i) => i));
   };
 
   const handleStatusChange = (idx, newStatus) => {
@@ -79,7 +103,7 @@ const Classes = () => {
     });
     setResults(updated);
     setUpdatedStatuses({});
-    alert('Statuses updated successfully!');
+    alert("Statuses updated successfully!");
   };
 
   const tdStyle = { padding: '8px', border: '1px solid #ccc', textAlign: 'left' };
@@ -106,12 +130,22 @@ const Classes = () => {
         </div>
         <div>
           <label>Subject</label><br />
-          <input type="text" name="subject" value={filters.subject} onChange={handleChange} />
-        </div>
+          <select name="subject" value={filters.subject} onChange={handleChange}>
+        <option value="">All</option>
+        <option value="English">English</option>
+        <option value="Maths">Maths</option>
+        <option value="Drawing">Drawing</option>
+      </select>
+         </div>
         <div>
-          <label>Class Type</label><br />
-          <input type="text" name="classType" value={filters.classType} onChange={handleChange} />
-        </div>
+         <label>Class Type</label><br />
+        <select name="classType" value={filters.classType} onChange={handleChange}>
+        <option value="">All</option>
+        <option value="demo">demo</option>
+        <option value="regular">regular</option>
+        <option value="adhoc">adhoc</option>
+      </select>
+      </div>
         <div>
           <label>Status</label><br />
           <select name="status" value={filters.status} onChange={handleChange}>
@@ -126,7 +160,7 @@ const Classes = () => {
         </div>
       </form>
 
-      {results.length > 0 && (
+      {results.length > 0 ? (
         <div style={{ marginTop: '2rem' }}>
           <h3>Class Results</h3>
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
@@ -192,8 +226,11 @@ const Classes = () => {
             </button>
           )}
         </div>
-      )}
+      ): (
+  <p style={{ marginTop: '2rem' }}>No search result matching the conditions</p>
+     ) }  
     </div>
+
   );
 };
 

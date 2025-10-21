@@ -74,7 +74,9 @@ function App() {
           <Route path="/addstudent" element={<AddStudentForm />} />
            <Route path="/updatestudent" element={<UpdateStudentForm />} />
           <Route path="/addteacher" element={<AddTeacherForm />} />
-          <Route path="/updateteacher" element={<div>Update Teacher Page (Coming Soon)</div>} />
+          <Route path="/updateteacher" element={<div> Yet to build (Coming Soon)</div>} />
+          <Route path="/studentinvoice" element={<div>Yet to build (Coming Soon)</div>} />
+          <Route path="/teacherinvoice" element={<div>Yet to build (Coming Soon)</div>} />
           <Route path="/class" element={<Classes/>} />
         </Routes>
       </div>

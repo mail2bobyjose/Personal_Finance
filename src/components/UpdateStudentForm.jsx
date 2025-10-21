@@ -246,7 +246,8 @@ const saveDemo = async (selectedStudent) => {
     classstatus: 'proposed',
     classtype: 'demo',
     studenttimezone: selectedStudent.timezone || 'Asia/Kolkata',
-  };
+    classpk: 'class',
+      };
 
   console.log('Submitting payload:', payload);
 
