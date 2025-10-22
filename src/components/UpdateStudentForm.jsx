@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { DateTime } from 'luxon';
+import { toDate } from 'date-fns';
 const subjectsList = ['Math', 'Science', 'English', 'History']; // Add actual subjects
 const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
@@ -33,7 +34,7 @@ const UpdateStudentForm = () => {
   
     // Regular Classes
     const [showClassForm, setShowClassForm] = useState(false);
-    const [classForm, setClassForm] = useState({ day: '', startTime: '', endTime: '', subject: '', teacher: '' });
+    const [classForm, setClassForm] = useState({ day: '', startTime: '', endTime: '', subject: '', teacher: '',fromDate: '', toDate: '' });
     const [regularClasses, setRegularClasses] = useState([]);
   
     // Suspension
@@ -85,7 +86,9 @@ const UpdateStudentForm = () => {
   };
 
 
+
   //Function to handle section of students from the student drop down
+
 
   const handleStudentSelect = (e) => {
     const selectedId = e.target.value;
@@ -300,28 +303,96 @@ const saveDemo = async (selectedStudent) => {
   };
 
 
-  //************* Regulat Class handlers************* 
+  //************* Regulat Class form handlers************* 
+
   const handleClassChange = (e) => {
     const { name, value } = e.target;
     setClassForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const addRegularClass = () => {
-    if (
-      !classForm.day ||
-      !classForm.startTime ||
-      !classForm.endTime ||
-      !classForm.subject ||
-      !classForm.teacher
-    ) {
+  
+
+//************* Function called when clicking save regular class button************* 
+
+ const addRegularClass = () => {
+    // Validate inputs
+    const { day, startTime, endTime, subject, teacher } = classForm;
+    if (!day || !startTime || !endTime || !subject || !teacher) {
       alert('Please fill all regular class fields');
       return;
     }
-    setRegularClasses((prev) => [...prev, classForm]);
-    setClassForm({ day: '', startTime: '', endTime: '', subject: '', teacher: '' });
+
+    // Add the new class to the list
+    //setRegularClasses((prev) => [...prev, classForm]);
+    setRegularClasses([classForm]);
+    // Reset form and hide it
+    saveRegularClass(classForm);
+    setClassForm({ day: '', startTime: '', endTime: '', subject: '', teacher: '', fromDate: '', toDate: '' });
     setShowClassForm(false);
   };
 
+
+//************* Send Regular Class to backend************* 
+
+// Save classes to backend when regularClasses updates
+  const saveRegularClass = async (regularClasses) => {
+  if (!regularClasses) {
+    alert("Please add regular class details before saving");
+    return;
+  }
+
+  const timezone = selectedStudent.timezone || 'Asia/Kolkata';
+
+  const payload = {
+    studentId: selectedStudent.studentId,
+    studentLastName: selectedStudent.studentLastName,
+    studentFirstName: selectedStudent.studentFirstName,
+    classteacherid: selectedteacher.teacherid,
+    classteacherfirstname: selectedteacher.teacherfirstname,
+    classteacherlastname: selectedteacher.teacherlastname,
+    classtype: 'regular',
+    studenttimezone: timezone,
+    regularClassDay: classForm.day,
+    classStartInStudentTimezone: classForm.startTime,
+    classEndInStudentTimezone: classForm.endTime,
+    classSubject: classForm.subject,
+    classFromDate: classForm.fromDate,
+    classToDate: classForm.toDate,
+    classpk: 'class',
+  };
+
+  console.log("Payload being sent:", payload);
+
+  try {
+    const response = await fetch(
+      'https://u0k5cdwk64.execute-api.ap-southeast-2.amazonaws.com/dev/addclass',
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      }
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      alert(`❌ Error: ${errorData.message || 'Unknown error occurred'}`);
+      return;
+    }
+
+    const data = await response.json();
+    console.log('Save response:', data);
+    alert('✅ Class saved successfully!');
+
+    // Optional: clear state if you're maintaining local class list
+    setRegularClasses([]);
+
+  } catch (err) {
+    console.error('❌ Network or server error:', err);
+    alert('❌ An error occurred while saving the class.');
+  }
+};
+
+  
   //*************Suspension handlers************* 
   const handleSuspensionChange = (e) => {
     const { name, value } = e.target;
@@ -947,6 +1018,27 @@ const saveDemo = async (selectedStudent) => {
                       required
                     />
                   </label>
+                  <label style={{ ...style.label, flex: '1 1 30%' }}>
+                    From Date
+                    <input
+                      type="date"
+                      name="fromDate"
+                      value={classForm.fromDate}
+                      onChange={handleClassChange}
+                      style={style.input}
+                      required
+                    />
+                  </label>
+                  <label style={{ ...style.label, flex: '1 1 30%' }}>
+                    To Date
+                    <input
+                      type="date"
+                      name="toDate"
+                      value={classForm.toDate}
+                      onChange={handleClassChange}
+                      style={style.input}
+                    />
+                  </label>
 
                   <div style={{ flex: '1 1 100%', marginTop: 10 }}>
                     <button style={style.button} type="submit">
@@ -967,21 +1059,25 @@ const saveDemo = async (selectedStudent) => {
                 <table style={style.table}>
                   <thead>
                     <tr>
-                      <th style={style.th}>Start</th>
-                      <th style={style.th}>End</th>
+                      <th style={style.th}>Day</th>
+                      <th style={style.th}>Start Time</th>
                       <th style={style.th}>End Time</th>
                       <th style={style.th}>Subject</th>
                       <th style={style.th}>Teacher</th>
+                      <th style={style.th}>From Date</th>
+                      <th style={style.th}>To Date</th>
                     </tr>
                   </thead>
                   <tbody>
                     {regularClasses.map((cls, idx) => (
                       <tr key={idx}>
-                        <td style={style.td}>{cls.startdate}</td>
-                        <td style={style.td}>{cls.enddate}</td>
+                        <td style={style.td}>{cls.day}</td>
+                        <td style={style.td}>{cls.startTime}</td>
                         <td style={style.td}>{cls.endTime}</td>
                         <td style={style.td}>{cls.subject}</td>
                         <td style={style.td}>{cls.teacher}</td>
+                        <td style={style.td}>{cls.fromDate}</td>
+                        <td style={style.td}>{cls.toDate}</td>
                       </tr>
                     ))}
                   </tbody>
