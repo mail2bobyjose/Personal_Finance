@@ -365,7 +365,7 @@ const saveDemo = async (selectedStudent) => {
 
   try {
     const response = await fetch(
-      'https://u0k5cdwk64.execute-api.ap-southeast-2.amazonaws.com/dev/addclass',
+      'https://6tirwxjmxl.execute-api.ap-southeast-2.amazonaws.com/default/addregularclassinfo',
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -381,8 +381,7 @@ const saveDemo = async (selectedStudent) => {
 
     const data = await response.json();
     console.log('Save response:', data);
-    alert('✅ Class saved successfully!');
-
+    
     // Optional: clear state if you're maintaining local class list
     setRegularClasses([]);
 
