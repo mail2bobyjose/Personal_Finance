@@ -36,7 +36,8 @@ const UpdateStudentForm = () => {
     const [showClassForm, setShowClassForm] = useState(false);
     const [classForm, setClassForm] = useState({ day: '', startTime: '', endTime: '', subject: '', teacher: '',fromDate: '', toDate: '' });
     const [regularClasses, setRegularClasses] = useState([]);
-  
+    const [retrievedRegularClasss, setRetrievedRegularClasss] = useState([]);
+
     // Suspension
     const [showSuspensionForm, setShowSuspensionForm] = useState(false);
     const [suspensionForm, setSuspensionForm] = useState({ startDate: '', endDate: '', subject: '' });
@@ -112,6 +113,7 @@ const UpdateStudentForm = () => {
 
       setSearchResults([]);
       fetchAndSetDemos(student);
+      fetchAndSetRegularclass (student);
     }
   };
 
@@ -308,6 +310,7 @@ const saveDemo = async (selectedStudent) => {
   const handleClassChange = (e) => {
     const { name, value } = e.target;
     setClassForm((prev) => ({ ...prev, [name]: value }));
+    
   };
 
   
@@ -329,6 +332,7 @@ const saveDemo = async (selectedStudent) => {
     saveRegularClass(classForm);
     setClassForm({ day: '', startTime: '', endTime: '', subject: '', teacher: '', fromDate: '', toDate: '' });
     setShowClassForm(false);
+
   };
 
 
@@ -380,8 +384,8 @@ const saveDemo = async (selectedStudent) => {
     }
 
     const data = await response.json();
-    console.log('Save response:', data);
-    
+    console.log('Data received', data); 
+
     // Optional: clear state if you're maintaining local class list
     setRegularClasses([]);
 
@@ -407,6 +411,31 @@ const saveDemo = async (selectedStudent) => {
     setSuspensionForm({ startDate: '', endDate: '', subject: '' });
     setShowSuspensionForm(false);
   };
+
+ //*************Retrive regular class details from backend ************* 
+  const fetchAndSetRegularclass = async (student) => {
+  console.log('Inside regular class retrieval function');
+
+  try {
+    const response = await fetch(`https://ezqlg6t7zb.execute-api.ap-southeast-2.amazonaws.com/default/retrieveregularclassinfo?studentId=${student.studentId}`);
+    
+    const data = await response.json();
+    console.log('Full response data:', data);
+
+    if (response.ok) {
+      setRetrievedRegularClasss(data || []);
+      alert('✅ Regular Class details retrieved successfully!', data);
+    } else {
+      console.error('API Error:', data);
+      alert(`❌ Error: ${data.message || 'Unexpected error from server.'}`);
+    }
+
+  } catch (err) {
+    console.error('❌ Network or server error:', err);
+    alert('❌ An error occurred while retrieving the demo.'); 
+  }
+};
+
 
 //*************Inline styles ************* 
     const style = {
@@ -1054,7 +1083,7 @@ const saveDemo = async (selectedStudent) => {
                 </form>
               )}
 
-              {regularClasses.length > 0 && (
+              {retrievedRegularClasss.length > 0 && (
                 <table style={style.table}>
                   <thead>
                     <tr>
@@ -1068,15 +1097,15 @@ const saveDemo = async (selectedStudent) => {
                     </tr>
                   </thead>
                   <tbody>
-                    {regularClasses.map((cls, idx) => (
+                    {retrievedRegularClasss.map((cls, idx) => (
                       <tr key={idx}>
-                        <td style={style.td}>{cls.day}</td>
-                        <td style={style.td}>{cls.startTime}</td>
-                        <td style={style.td}>{cls.endTime}</td>
-                        <td style={style.td}>{cls.subject}</td>
-                        <td style={style.td}>{cls.teacher}</td>
-                        <td style={style.td}>{cls.fromDate}</td>
-                        <td style={style.td}>{cls.toDate}</td>
+                        <td style={style.td}>{cls.regularClassDay}</td>
+                        <td style={style.td}>{cls.classStartInStudentTimezone}</td>
+                        <td style={style.td}>{cls.classEndInStudentTimezone}</td>
+                        <td style={style.td}>{cls.classSubject}</td>
+                        <td style={style.td}>{cls.classteacherfirstname}</td>
+                        <td style={style.td}>{cls.classFromDate}</td>
+                        <td style={style.td}>{cls.classToDate}</td>
                       </tr>
                     ))}
                   </tbody>
