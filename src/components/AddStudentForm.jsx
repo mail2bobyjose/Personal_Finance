@@ -1,7 +1,28 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
+import ct from 'countries-and-timezones';
 
 const subjectsList = ['Maths', 'English', 'Drawing'];
 const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+
+/* ✅ Allowed countries constant (ISO2 codes) */
+const ALLOWED_COUNTRIES = [
+  { code: 'AU', name: 'Australia' },
+  { code: 'GB', name: 'United Kingdom' },
+  { code: 'CA', name: 'Canada' },
+  { code: 'IN', name: 'India' },
+  { code: 'US', name: 'United States' },
+  { code: 'IE', name: 'Ireland' }
+];
+
+const COUNTRY_TIMEZONES = {
+  AU: ['Australia/Sydney', 'Australia/Melbourne', 'Australia/Brisbane', 'Australia/Adelaide', 'Australia/Perth', 'Australia/Hobart', 'Australia/Darwin'], // your AU list
+  CA: ['America/Toronto', 'America/Vancouver', 'America/Edmonton', 'America/Winnipeg', 'America/Halifax'], // major Canadian timezones
+  US: ['America/New_York', 'America/Chicago', 'America/Denver', 'America/Los_Angeles'], // major US timezones
+  IE: ['Europe/Dublin'], // Ireland
+  GB: ['Europe/London'], // UK
+  IN: ['Asia/Kolkata'] // India
+};
+
 
 const AddStudentForm = () => {
   const initialForm = {
@@ -13,6 +34,7 @@ const AddStudentForm = () => {
     parentEmail: '',
     locationCountry: '',
     locationState: '',
+    locationTimezone: '',
   };
 
   const [form, setForm] = useState(initialForm);
@@ -38,11 +60,47 @@ const AddStudentForm = () => {
   const [suspensionForm, setSuspensionForm] = useState({ startDate: '', endDate: '', subject: '' });
   const [suspensions, setSuspensions] = useState([]);
 
+
+    /* ✅ Get timezones based on selected country */
+const availableTimezones = useMemo(() => {
+  if (!form.locationCountry) return [];
+  return COUNTRY_TIMEZONES[form.locationCountry] || [];
+}, [form.locationCountry]);
+
+
+function getFriendlyTimezoneLabel(tz) {
+  try {
+    // Extract city name from the timezone string
+    const city = tz.split('/')[1]?.replace('_', ' ') || tz;
+
+    // Get the short timezone name (e.g., EST, AEDT)
+    const shortName = new Date().toLocaleTimeString('en-US', {
+      timeZone: tz,
+      timeZoneName: 'short',
+    }).split(' ')[2]; // The 3rd part is usually the abbreviation
+
+    return `${city} (${shortName})`;
+  } catch (e) {
+    return tz; // fallback
+  }
+}
+
+
   // Handle input for main form
   const handleChange = (e) => {
     const { name, value } = e.target;
+     // Reset timezone when country changes
+    if (name === 'locationCountry') {
+      setForm((prev) => ({
+        ...prev,
+        locationCountry: value,
+        locationTimezone: ''
+      }));
+      return;
+    }
     setForm((prev) => ({ ...prev, [name]: value }));
   };
+
 
   const submitForm = async (e) => {
     e.preventDefault();
@@ -56,6 +114,7 @@ const AddStudentForm = () => {
         parentMobileNumber: form.parentMobileNumber,
         locationCountry: form.locationCountry,
         locationState: form.locationState,
+        locationTimezone: form.locationTimezone,
       };
 
       console.log(payload);
@@ -375,17 +434,26 @@ function calculateDefaultEndTime(startTime) {
           </label>
 
           {/* Location Country and State side by side */}
-          <div style={style.halfWidthContainer}>
+
+      <div style={style.halfWidthContainer}>
             <label style={style.halfWidthField}>
               Location Country
-              <input
-                type="text"
+              <select
                 name="locationCountry"
                 value={form.locationCountry}
                 onChange={handleChange}
                 style={style.input}
-              />
+                required
+              >
+                <option value="">Select Country</option>
+                {ALLOWED_COUNTRIES.map((country) => (
+                  <option key={country.code} value={country.code}>
+                    {country.name}
+                  </option>
+                ))}
+              </select>
             </label>
+
             <label style={style.halfWidthField}>
               Location State
               <input
@@ -398,6 +466,29 @@ function calculateDefaultEndTime(startTime) {
             </label>
           </div>
 
+          {/* ✅ Timezone Dropdown */}
+          <div style={style.halfWidthContainer}>
+            <label style={style.halfWidthField}>
+            Timezone
+            <select
+              name="locationTimezone"
+              value={form.locationTimezone}
+              onChange={handleChange}
+              style={style.input}
+              disabled={!form.locationCountry}
+              required
+            >
+              <option value="">Select Timezone</option>
+              {availableTimezones.map((tz) => (
+                <option key={tz} value={tz}>
+                  {getFriendlyTimezoneLabel(tz)}
+                </option>
+              ))}
+            </select>
+          </label>
+          </div>
+
+          
           <button style={style.button} type="submit">
             Add Student
           </button>
